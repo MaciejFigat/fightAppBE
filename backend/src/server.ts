@@ -20,20 +20,15 @@ app.use(express.json())
 // app.use('/api/users', userRoutes)
 
 if (process.env.NODE_ENV === 'production') {
-  // folder that will be used for static assets
-  app.use(express.static(path.join(path.resolve(), 'frontend/build')))
+  app.get('/', (req, res, next) => {
+    res.send('API is running in production mode')
 
-  // handle every other route with index.html, which will contain
-  // a script tag to your application's JavaScript file(s).
-  app.get('*', function (request, response) {
-    response.sendFile(
-      path.resolve(path.resolve(), 'frontend/build', 'index.html')
-    )
+    next()
   })
 } else {
-  app.get('/', (req, res) => {
+  app.get('/', (req, res, next) => {
     res.send('API is running')
-    // @ts-ignore
+
     next()
   })
 }
