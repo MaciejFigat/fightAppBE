@@ -62,7 +62,7 @@ const userSchema = new Schema<UserDocument>(
   }
 )
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
+userSchema.methods.matchPassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 userSchema.pre('save', async function (next) {

@@ -2,14 +2,14 @@ import express from 'express'
 import dotenv from 'dotenv'
 import colors from 'colors'
 import morgan from 'morgan'
-import path from 'path'
-// import userRoutes from '../routes/userRoutes'
-// import connectDB from '../config/db'
+
+import userRoutes from '../routes/userRoutes'
+import connectDB from '../config/db'
 // import { notFound, errorHandler } from '../middleware/errorMiddleware'
 
 dotenv.config()
 
-// connectDB()
+connectDB()
 
 const app = express()
 
@@ -17,7 +17,7 @@ app.use(express.json())
 
 // routes
 
-// app.use('/api/users', userRoutes)
+app.use('/api/users', userRoutes)
 
 if (process.env.NODE_ENV === 'production') {
   app.get('/', (req, res, next) => {
