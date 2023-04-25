@@ -27,8 +27,8 @@ const forgotUserPassword = asyncHandler(async (req, res) => {
     })
     // here we send the email with the reset link
     const userEmail = email
-    const subject = 'TurboLex reset hasła'
-    const text = 'Zmiana hasła lub zalogowanie bez zmiany.'
+    const subject = 'Password reset FightBet'
+    const text = 'Password reset FightBet or login with a temporary token'
     const htmlBody =
       process.env.NODE_ENV === 'production'
         ? `
@@ -191,12 +191,14 @@ const registerUser = asyncHandler(async (req, res) => {
   }
   const confirmationToken = crypto.randomBytes(20).toString('hex')
 
+  const startingCoins: number = 1000 //for testing purposes
   const user = await User.create({
     name,
     email,
     password,
     status: 'Pending',
-    confirmationCode: confirmationToken
+    confirmationCode: confirmationToken,
+    coinsAvailable: startingCoins
   })
 
   if (user) {
@@ -206,6 +208,7 @@ const registerUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       status: user.status,
+      coinsAvailable: user.coinsAvailable,
       token: generateToken(user._id)
     })
   } else {
@@ -214,7 +217,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
   // here we send the email with confirmationToken
   const userEmail = email
-  const subject = 'Witaj w TurboLex'
+  const subject = 'Welcome to FightBet'
   const text = 'Aktywacja konta'
 
   const htmlBody =
@@ -223,14 +226,14 @@ const registerUser = asyncHandler(async (req, res) => {
        
         <div style='display: grid; place-items:center; border-radius: 10px; background-color: #F7F6F2; padding: 16px;'>
         
-            <h2>Dziękujemy za rejestrację w TurboLex</h2> 
+            <h2>Thank You for signing in FightBet</h2> 
         
-            <h3 style='font-size: 16px; color: #3B5367;'>Poniższy link weryfikuje email podany podczas rejestracji na serwisie TurboLex</h3>
+            <h3 style='font-size: 16px; color: #3B5367;'>Verify your account email address used during registration</h3>
           
 
             <button style='background-color: #3B5367; text-align: center; border-radius: 5px; border: none; padding: 10px; width: 240px;'>
-                    <a style='text-decoration: none; color: #F7F6F2; font-size: 20px;' href='https://lexbis.netlify.app/confirmaccount/${confirmationToken}'>
-                         Aktywuj konto TurboLex
+                    <a style='text-decoration: none; color: #F7F6F2; font-size: 20px;' href='https://fightbet.netlify.app/confirmaccount/${confirmationToken}'>
+                    Activate your FightBet account
                     </a>
             </button>
         
@@ -240,21 +243,19 @@ const registerUser = asyncHandler(async (req, res) => {
         `
       : `<div style='display: grid; place-items:center; border-radius: 10px; background-color: #F7F6F2; padding: 16px;'>
         
-            <h2>Dziękujemy za rejestrację w TurboLex</h2> 
+            <h2>Thank You for signing in FightBet</h2> 
         
-            <h3 style='font-size: 16px; color: #3B5367;'>Poniższy link weryfikuje email podany podczas rejestracji na serwisie TurboLex</h3>
+            <h3 style='font-size: 16px; color: #3B5367;'>Verify your account email address used during registration</h3>
           
 
             <button style='background-color: #3B5367; text-align: center; border-radius: 5px; border: none; padding: 10px; width: 240px;'>
                     <a style='text-decoration: none; color: #F7F6F2; font-size: 20px;' href='http://localhost:3000/confirmaccount/${confirmationToken}'>
-                         Aktywuj konto TurboLex
+                         Activate your FightBet account
                     </a>
             </button>
         
         </div>`
 
-  // <a href='https://lexbis.netlify.app/confirmaccount/${confirmationToken}'>Please follow the link and paste the code there.</a></>`
-  // const htmlBody = `<><b>Please confirm your email by clicking the link below.</b><form method="post" action="http://localhost:5000/api/users/userconfirmation?confirmationCode=${confirmationToken}"><input type ="hidden" name ="extra_submit_param" value ="extra_submit_value"><button type="submit" name ="submit_param" value ="submit_value">You are confirming your email address.</button><a href='http://localhost:5000/api/users/userconfirmation?confirmationCode=${confirmationToken}'>Alternative link</a></form></>`
   sendEmailTest(userEmail, subject, text, htmlBody)
 })
 
