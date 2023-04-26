@@ -148,6 +148,7 @@ const authUser = asyncHandler(async (req, res) => {
       status: user.status,
       email: user.email,
       isAdmin: user.isAdmin,
+      coinsAvailable: user.coinsAvailable,
       token: generateToken(user._id)
     })
   } else {
@@ -346,6 +347,7 @@ const updateUserProfile = asyncHandler(async (req: any, res: any) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      coinsAvailable: updatedUser.coinsAvailable,
       token: generateToken(updatedUser._id)
     })
   } else {
