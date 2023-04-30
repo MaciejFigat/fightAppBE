@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import colors from 'colors'
 import morgan from 'morgan'
 import userRoutes from '../routes/userRoutes'
+import betRoutes from '../routes/betRoutes'
 import connectDB from '../config/db'
 import { notFound, errorHandler } from '../middleware/errorMiddleware'
 
@@ -17,6 +18,7 @@ app.use(express.json())
 // routes
 
 app.use('/api/users', userRoutes)
+app.use('/api/bets', betRoutes)
 
 if (process.env.NODE_ENV === 'production') {
   app.get('/', (req, res, next) => {

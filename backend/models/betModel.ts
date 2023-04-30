@@ -1,11 +1,8 @@
 import { model, Schema, Document } from 'mongoose'
 import { WinMethod, WinnerProjection } from '../consts'
 import { FighterProfile } from '../interfaces'
-import {
-  FighterProfileSchema,
-  WinMethodSchema,
-  WinnerProjectionSchema
-} from './betUtilsModels'
+import { FighterProfileSchema, WinMethodSchema } from './betUtilsModels'
+// import User from './userModel'
 
 export interface FightBet extends Document {
   user: {
@@ -25,8 +22,8 @@ export interface FightBet extends Document {
   projectedWinner: WinnerProjection
   amountBet: number
   expectedPayout: number
-  //  TODO - add the rest of the fields pertaining to the accepted condition etc.
   isAccepted?: boolean
+  isResolved?: boolean
   acceptDateTime?: string
   acceptedBy?: {
     type: any
@@ -53,7 +50,15 @@ const RegisteredBetSchema: Schema = new Schema({
     required: true
   },
   method: {
-    type: WinMethodSchema,
+    type: String,
+    enum: [
+      WinMethod.KO_TKO,
+      WinMethod.SUBMISSION,
+      WinMethod.DECISION,
+      WinMethod.DRAW,
+      WinMethod.DQ,
+      WinMethod.TBD
+    ],
     required: true
   },
   FightId: {
@@ -72,25 +77,42 @@ const RegisteredBetSchema: Schema = new Schema({
     type: Number
   },
   Fighters: {
-    type: [FighterProfileSchema]
+    type: [FighterProfileSchema],
+    required: false
   },
   projectedWinner: {
-    type: WinnerProjectionSchema,
+    type: Number || String,
+    enum: [
+      WinnerProjection.FIGHTER1,
+      WinnerProjection.FIGHTER2,
+      WinnerProjection.ANY
+    ],
     required: true
   },
   amountBet: {
     type: Number,
     required: true
   },
+  expectedPayout: {
+    type: Number,
+    required: false
+  },
   isAccepted: {
     type: Boolean,
     default: false
   },
+  isResolved: {
+    type: Boolean,
+    default: false
+  },
   acceptDateTime: {
-    type: Date
+    type: Date,
+    required: false
   },
   acceptedBy: {
+    // type: User,
     type: Schema.Types.ObjectId,
+    required: false,
     ref: 'User'
   }
 })
