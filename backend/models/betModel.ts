@@ -65,6 +65,10 @@ const RegisteredBetSchema: Schema = new Schema({
     type: Number,
     required: true
   },
+  EventId: {
+    type: Number,
+    required: false
+  },
   activated: {
     type: Boolean,
     default: false
