@@ -81,7 +81,7 @@ const RegisteredBetSchema: Schema = new Schema({
     required: false
   },
   projectedWinner: {
-    type: Number || String,
+    type: Schema.Types.Mixed,
     enum: [
       WinnerProjection.FIGHTER1,
       WinnerProjection.FIGHTER2,
@@ -95,7 +95,7 @@ const RegisteredBetSchema: Schema = new Schema({
   },
   expectedPayout: {
     type: Number,
-    required: false
+    required: true
   },
   isAccepted: {
     type: Boolean,

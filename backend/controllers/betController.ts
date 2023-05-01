@@ -22,6 +22,7 @@ const addNewBet = asyncHandler(async (req: RequestWithUser, res: Response) => {
     moneyline,
     Fighters,
     projectedWinner,
+    expectedPayout,
     amountBet
   } = req.body
 
@@ -37,7 +38,8 @@ const addNewBet = asyncHandler(async (req: RequestWithUser, res: Response) => {
     moneyline,
     Fighters,
     projectedWinner,
-    amountBet
+    amountBet,
+    expectedPayout
   })
 
   const createdBet = await bet.save()
