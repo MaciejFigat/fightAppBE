@@ -21,7 +21,8 @@ const FighterProfileSchema = new Schema<FighterProfile>({
   },
   Moneyline: {
     type: Number,
-    required: true
+    required: false,
+    default: null
   },
   PreFightDraws: {
     type: Number,

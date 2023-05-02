@@ -1,7 +1,7 @@
 import { model, Schema, Document } from 'mongoose'
 import { WinMethod, WinnerProjection } from '../consts'
 import { FighterProfile } from '../interfaces'
-import { FighterProfileSchema, WinMethodSchema } from './betUtilsModels'
+import { FighterProfileSchema } from './betUtilsModels'
 // import User from './userModel'
 
 export interface FightBet extends Document {
@@ -67,7 +67,7 @@ const RegisteredBetSchema: Schema = new Schema({
   },
   EventId: {
     type: Number,
-    required: false
+    required: true
   },
   activated: {
     type: Boolean,
