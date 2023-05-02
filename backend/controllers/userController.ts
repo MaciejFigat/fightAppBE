@@ -219,7 +219,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // here we send the email with confirmationToken
   const userEmail = email
   const subject = 'Welcome to FightBet'
-  const text = 'Aktywacja konta'
+  const text = 'Activate account'
 
   const htmlBody =
     process.env.NODE_ENV === 'production'

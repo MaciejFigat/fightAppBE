@@ -15,6 +15,20 @@ const app = express()
 
 app.use(express.json())
 
+app.use((req, res, next) => {
+  res.header('Content-Type', 'application/json')
+  res.header('Access-Control-Allow-Headers', 'Authorization')
+  res.header('Access-Control-Allow-Origin', 'https://fightbet.netlify.app')
+  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  next()
+})
+//? for preflight checks - CORS related
+app.options('*', function (req, res) {
+  res.header('Content-Type', 'application/json')
+  res.header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+  res.send()
+})
+
 // routes
 
 app.use('/api/users', userRoutes)
