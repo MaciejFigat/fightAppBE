@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler'
 import FightBetModel from '../models/betModel'
 import { Request, Response, NextFunction } from 'express'
 import { UserDocument } from '../models/userModel'
+import mongoose from 'mongoose'
 
 interface RequestWithUser extends Request {
   user?: UserDocument
@@ -60,24 +61,33 @@ const updateBet = asyncHandler(
         isAccepted = false,
         acceptDateTime = null,
         isResolved = false,
-        userID = null,
+        acceptedBy,
         expectedPayout = null
       } = req.body
+
       const bet = await FightBetModel.findById(req.params.id)
+      //   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/
+      //   const bet = validObjectIdRegex.test(req.params.id)
+      //     ? await FightBetModel.findById(req.params.id)
+      //     : await FightBetModel.findById(req.params._id)
 
       if (!bet) {
         res.status(404)
         throw new Error('Bet not found')
       }
+      // const convertedObjectId = new mongoose.Types.ObjectId(acceptedBy)
 
       bet.isAccepted = isAccepted
       bet.acceptDateTime = acceptDateTime
-      bet.isResolved = isResolved
-      bet.acceptedBy = userID
-      bet.expectedPayout = expectedPayout
+      bet.expectedPayout = expectedPayout || bet.expectedPayout
+      bet.isResolved = isResolved || bet.isResolved
+      bet.acceptedBy = acceptedBy || bet.acceptedBy
 
       const updatedBet = await bet.save()
       res.json(updatedBet)
+
+      console.log(req.params.id)
+      console.error(acceptedBy)
     } catch (err) {
       next(err)
     }
@@ -118,7 +128,6 @@ const getMyBets = asyncHandler(async (req: RequestWithUser, res: Response) => {
     const bet = await FightBetModel.find({ user: req.user?._id })
     res.json(bet)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: 'Server Error' })
   }
 })

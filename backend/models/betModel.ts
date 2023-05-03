@@ -2,9 +2,8 @@ import { model, Schema, Document } from 'mongoose'
 import { WinMethod, WinnerProjection } from '../consts'
 import { FighterProfile } from '../interfaces'
 import { FighterProfileSchema } from './betUtilsModels'
-// import User from './userModel'
 
-export interface FightBet extends Document {
+export interface FightBetDocument extends Document {
   user: {
     type: any
     required: boolean
@@ -15,6 +14,7 @@ export interface FightBet extends Document {
   fightName: string
   method: WinMethod
   FightId: number
+  EventId: number
   activated: boolean
   dateTime: string
   moneyline?: number
@@ -25,12 +25,14 @@ export interface FightBet extends Document {
   isAccepted?: boolean
   isResolved?: boolean
   acceptDateTime?: string
-  acceptedBy?: {
-    type: any
-    ref: string
-  }
+  acceptedBy: string | null
+
+  // acceptedBy?: {
+  //   type: Schema.Types.ObjectId
+  //   ref: string
+  // }
 }
-const RegisteredBetSchema: Schema = new Schema({
+const registeredBetSchema = new Schema<FightBetDocument>({
   user: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -74,7 +76,7 @@ const RegisteredBetSchema: Schema = new Schema({
     default: false
   },
   dateTime: {
-    type: Date,
+    type: String,
     required: true
   },
   moneyline: {
@@ -114,13 +116,15 @@ const RegisteredBetSchema: Schema = new Schema({
     required: false
   },
   acceptedBy: {
-    // type: User,
-    type: Schema.Types.ObjectId,
-    required: false,
-    ref: 'User'
+    type: String,
+    required: false
+    // ref: 'User'
   }
 })
 
-const FightBetModel = model<FightBet>('FightBet', RegisteredBetSchema)
+const FightBetModel = model<FightBetDocument>(
+  'FightBetModel',
+  registeredBetSchema
+)
 
 export default FightBetModel
