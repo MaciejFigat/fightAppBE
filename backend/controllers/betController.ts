@@ -112,7 +112,7 @@ const deleteBet = asyncHandler(
 
       await bet.remove()
 
-      res.status(200).json({ message: 'Bet removed' })
+      res.status(200).json({ message: 'Bet removed', id: bet._id })
     } catch (error) {
       next(error)
     }
