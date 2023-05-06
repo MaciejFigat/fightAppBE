@@ -3,12 +3,12 @@ import { WinMethod, WinnerProjection } from '../consts'
 import { FighterProfile } from '../interfaces'
 import { FighterProfileSchema } from './betUtilsModels'
 
+interface BetUserData {
+  _id: string
+  name: string
+}
 export interface FightBetDocument extends Document {
-  user: {
-    type: any
-    required: boolean
-    ref: string
-  }
+  user: BetUserData
   id: string
   name: string
   fightName: string

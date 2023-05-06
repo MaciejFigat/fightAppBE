@@ -2,8 +2,7 @@ import asyncHandler from 'express-async-handler'
 import FightBetModel from '../models/betModel'
 import { Request, Response, NextFunction } from 'express'
 import { UserDocument } from '../models/userModel'
-import mongoose from 'mongoose'
-
+import UserModel from '../models/userModel'
 interface RequestWithUser extends Request {
   user?: UserDocument
 }
@@ -47,6 +46,11 @@ const addNewBet = asyncHandler(async (req: RequestWithUser, res: Response) => {
 
   const createdBet = await bet.save()
 
+  const user = await UserModel.findById(req.user?._id)
+  if (user) {
+    user.coinsAvailable -= amountBet
+    await user.save()
+  }
   res.status(201).json(createdBet)
 })
 
@@ -66,16 +70,11 @@ const updateBet = asyncHandler(
       } = req.body
 
       const bet = await FightBetModel.findById(req.params.id)
-      //   const validObjectIdRegex = /^[0-9a-fA-F]{24}$/
-      //   const bet = validObjectIdRegex.test(req.params.id)
-      //     ? await FightBetModel.findById(req.params.id)
-      //     : await FightBetModel.findById(req.params._id)
 
       if (!bet) {
         res.status(404)
         throw new Error('Bet not found')
       }
-      // const convertedObjectId = new mongoose.Types.ObjectId(acceptedBy)
 
       bet.isAccepted = isAccepted
       bet.acceptDateTime = acceptDateTime
@@ -84,10 +83,16 @@ const updateBet = asyncHandler(
       bet.acceptedBy = acceptedBy || bet.acceptedBy
 
       const updatedBet = await bet.save()
-      res.json(updatedBet)
 
-      console.log(req.params.id)
-      console.error(acceptedBy)
+      if (isAccepted) {
+        const user = await UserModel.findById(acceptedBy)
+        if (user) {
+          user.coinsAvailable -= expectedPayout
+          await user.save()
+        }
+      }
+
+      res.json(updatedBet)
     } catch (err) {
       next(err)
     }
@@ -96,7 +101,7 @@ const updateBet = asyncHandler(
 
 // @description delete selected bets
 // @route DELETE /api/bets/:id
-// @access private/admin
+// @access private
 
 const deleteBet = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -112,7 +117,19 @@ const deleteBet = asyncHandler(
 
       await bet.remove()
 
-      res.status(200).json({ message: 'Bet removed', id: bet._id })
+      const { _id: userId } = bet.user
+      const { amountBet } = bet
+      const user = await UserModel.findById(userId)
+      if (user) {
+        user.coinsAvailable += amountBet
+        await user.save()
+      }
+
+      res.status(200).json({
+        message: 'Bet removed',
+        id: bet._id,
+        coinsAvailable: user?.coinsAvailable
+      })
     } catch (error) {
       next(error)
     }
