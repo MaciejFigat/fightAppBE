@@ -76,6 +76,11 @@ const updateBet = asyncHandler(
         throw new Error('Bet not found')
       }
 
+      if (bet.isAccepted) {
+        const error = new Error('Bet already accepted')
+        throw error
+      }
+
       bet.isAccepted = isAccepted
       bet.acceptDateTime = acceptDateTime
       bet.expectedPayout = expectedPayout || bet.expectedPayout
