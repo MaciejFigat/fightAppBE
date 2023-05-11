@@ -3,7 +3,10 @@ import FightBetModel from '../models/betModel'
 import { Request, Response, NextFunction } from 'express'
 import { UserDocument } from '../models/userModel'
 import UserModel from '../models/userModel'
-import { resolveBetsByFightId } from './functions/betHelpers'
+import {
+  resolveBetsByFightId,
+  retireBetsByFightId
+} from './functions/betHelpers'
 
 interface RequestWithUser extends Request {
   user?: UserDocument
@@ -172,16 +175,22 @@ const getAndResolveMyBets = asyncHandler(
         isAccepted: true,
         dateTime: { $lt: today.toISOString() }
       })
+      // retire - not accepted with past due date
+      const readyToRetireBets = await FightBetModel.find({
+        resolved: false,
+        isAccepted: false,
+        dateTime: { $lt: today.toISOString() }
+      })
 
       const uniqueFightIds = [
         ...new Set(readyToResolveBets.map(bet => bet.FightId))
       ]
-
+      const retiredBets = await retireBetsByFightId(readyToRetireBets)
       const resolvedBets = await resolveBetsByFightId(
         uniqueFightIds,
         readyToResolveBets
       )
-      //* needed later if I want to win notifications res.json(resolvedBets)
+      //* needed later if I want to win or bet retire notifications res.json(resolvedBets)
 
       const bets = await FightBetModel.find({ user: req.user?._id })
       res.json(bets)

@@ -104,5 +104,26 @@ const resolveBetsByFightId = async (
 
   return resolvedBets
 }
+const retireBetsByFightId = async (readyToRetireBets: FightBetDocument[]) => {
+  for (const bet of readyToRetireBets) {
+    const retiredBetToSave = await FightBetModel.findOne({
+      id: bet.id
+    })
+    const user = await UserModel.findById(bet.user?._id)
+    if (!user) {
+      throw new Error('User not found')
+    }
+    user.coinsAvailable += bet.amountBet
+    await user.save()
+    const retiredBet = {
+      ...bet,
+      isResolved: true
+    }
+    if (retiredBetToSave) {
+      retiredBetToSave.isResolved = retiredBet.isResolved
+      await retiredBetToSave.save()
+    }
+  }
+}
 
-export { getFightData, resolveBetsByFightId }
+export { getFightData, resolveBetsByFightId, retireBetsByFightId }
