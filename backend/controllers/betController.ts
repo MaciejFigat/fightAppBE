@@ -3,6 +3,8 @@ import FightBetModel from '../models/betModel'
 import { Request, Response, NextFunction } from 'express'
 import { UserDocument } from '../models/userModel'
 import UserModel from '../models/userModel'
+import { resolveBetsByFightId } from './functions/betHelpers'
+
 interface RequestWithUser extends Request {
   user?: UserDocument
 }
@@ -141,7 +143,7 @@ const deleteBet = asyncHandler(
   }
 )
 
-// @description get logged in user bet
+// @description get logged in user bets that he created
 // @route GET /api/bet/mybet
 // @access private
 
@@ -153,6 +155,72 @@ const getMyBets = asyncHandler(async (req: RequestWithUser, res: Response) => {
     res.status(500).json({ message: 'Server Error' })
   }
 })
+// @description get logged in user bets that he created
+// @route GET /api/bet/mybet
+// @access private
+
+const getAndResolveMyBets = asyncHandler(
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Set time to midnight then convert dateTime to ISO string and compare the two dates to check if the dateTime is earlier
+
+      // $lt -  (less than)
+      const readyToResolveBets = await FightBetModel.find({
+        resolved: false,
+        isAccepted: true,
+        dateTime: { $lt: today.toISOString() }
+      })
+
+      const uniqueFightIds = [
+        ...new Set(readyToResolveBets.map(bet => bet.FightId))
+      ]
+
+      const resolvedBets = await resolveBetsByFightId(
+        uniqueFightIds,
+        readyToResolveBets
+      )
+      console.log(process.env.MMA_API_KEY)
+      console.log('resolved length', resolvedBets.length, resolvedBets)
+      //how to update the resolved bets
+      // const resolvedBet = await FightBetModel.findById(resolvedBets[0].id)
+      // const updatedBet = await resolvedBet.save
+      // res.json(resolvedBets)
+    } catch (error) {
+      res.status(500).json({ message: 'Server Error' })
+    }
+  }
+)
+
+// @description get logged in user bets that he accepted
+// @route GET /api/bet/myacceptedbet
+// @access private
+
+const getMyAcceptedBets = asyncHandler(
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const bet = await FightBetModel.find({ acceptedBy: req.user?._id })
+      res.json(bet)
+    } catch (error) {
+      res.status(500).json({ message: 'Server Error' })
+    }
+  }
+)
+// @description get logged in user bets that he accepted
+// @route GET /api/bet/myacceptedbet
+// @access private
+
+const getAndResolveMyAcceptedBets = asyncHandler(
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const bet = await FightBetModel.find({ acceptedBy: req.user?._id })
+
+      res.json(bet)
+    } catch (error) {
+      res.status(500).json({ message: 'Server Error' })
+    }
+  }
+)
 
 // @description get all bets
 // @route GET /api/bets
@@ -169,4 +237,13 @@ const getAllBets = asyncHandler(
   }
 )
 
-export { addNewBet, updateBet, deleteBet, getMyBets, getAllBets }
+export {
+  addNewBet,
+  updateBet,
+  deleteBet,
+  getMyBets,
+  getAndResolveMyBets,
+  getAndResolveMyAcceptedBets,
+  getMyAcceptedBets,
+  getAllBets
+}
