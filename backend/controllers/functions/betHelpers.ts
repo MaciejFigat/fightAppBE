@@ -104,7 +104,7 @@ const resolveBetsByFightId = async (
 
   return resolvedBets
 }
-const retireBetsByFightId = async (readyToRetireBets: FightBetDocument[]) => {
+const retireBetsByDateDue = async (readyToRetireBets: FightBetDocument[]) => {
   for (const bet of readyToRetireBets) {
     const retiredBetToSave = await FightBetModel.findOne({
       id: bet.id
@@ -126,4 +126,4 @@ const retireBetsByFightId = async (readyToRetireBets: FightBetDocument[]) => {
   }
 }
 
-export { getFightData, resolveBetsByFightId, retireBetsByFightId }
+export { getFightData, resolveBetsByFightId, retireBetsByDateDue }

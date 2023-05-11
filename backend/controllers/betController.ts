@@ -5,7 +5,7 @@ import { UserDocument } from '../models/userModel'
 import UserModel from '../models/userModel'
 import {
   resolveBetsByFightId,
-  retireBetsByFightId
+  retireBetsByDateDue
 } from './functions/betHelpers'
 
 interface RequestWithUser extends Request {
@@ -185,7 +185,7 @@ const getAndResolveMyBets = asyncHandler(
       const uniqueFightIds = [
         ...new Set(readyToResolveBets.map(bet => bet.FightId))
       ]
-      const retiredBets = await retireBetsByFightId(readyToRetireBets)
+      const retiredBets = await retireBetsByDateDue(readyToRetireBets)
       const resolvedBets = await resolveBetsByFightId(
         uniqueFightIds,
         readyToResolveBets
