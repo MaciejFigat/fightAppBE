@@ -1,6 +1,6 @@
-import { model, Schema, Document } from 'mongoose'
+import { model, Schema } from 'mongoose'
 import { WinMethod, WinnerProjection } from '../consts'
-import { FightBetDocument, FighterProfile } from '../interfaces'
+import { FightBetDocument } from '../interfaces'
 import { FighterProfileSchema } from './betUtilsModels'
 
 const registeredBetSchema = new Schema<FightBetDocument>({

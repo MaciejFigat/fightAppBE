@@ -4,7 +4,6 @@ import {
   addNewBet,
   updateBet,
   deleteBet,
-  getMyBets,
   getAllBets,
   getMyAcceptedBets,
   getAndResolveMyBets
@@ -13,7 +12,6 @@ import {
 const router = express.Router()
 
 router.route('/').post(protect, addNewBet).get(protect, getAllBets)
-// router.route('/mybets').get(protect, getMyBets)
 router.route('/mybets').get(protect, getAndResolveMyBets)
 router.route('/myacceptedbet').get(protect, getMyAcceptedBets)
 router.route('/:id').delete(protect, deleteBet).put(protect, updateBet)

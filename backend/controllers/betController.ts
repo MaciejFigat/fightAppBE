@@ -146,6 +146,7 @@ const deleteBet = asyncHandler(
 // @description get logged in user bets that he created
 // @route GET /api/bet/mybet
 // @access private
+//? currently not used
 
 const getMyBets = asyncHandler(async (req: RequestWithUser, res: Response) => {
   try {
@@ -180,12 +181,10 @@ const getAndResolveMyBets = asyncHandler(
         uniqueFightIds,
         readyToResolveBets
       )
-      console.log(process.env.MMA_API_KEY)
-      console.log('resolved length', resolvedBets.length, resolvedBets)
-      //how to update the resolved bets
-      // const resolvedBet = await FightBetModel.findById(resolvedBets[0].id)
-      // const updatedBet = await resolvedBet.save
-      // res.json(resolvedBets)
+      //* needed later if I want to win notifications res.json(resolvedBets)
+
+      const bets = await FightBetModel.find({ user: req.user?._id })
+      res.json(bets)
     } catch (error) {
       res.status(500).json({ message: 'Server Error' })
     }
@@ -225,6 +224,7 @@ const getAndResolveMyAcceptedBets = asyncHandler(
 // @description get all bets
 // @route GET /api/bets
 // @access private
+//? currently not used
 
 const getAllBets = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

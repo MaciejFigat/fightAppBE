@@ -1,8 +1,7 @@
-// import fetch from 'node-fetch'
 import { FightBetDocument, FinishedFightData } from '../../interfaces'
 import { WinMethod } from '../../consts'
 import FightBetModel from '../../models/betModel'
-// const MMA_API_KEY = process.env.MMA_API_KEY
+import UserModel from '../../models/userModel'
 
 const getFightData = async (FightId: number): Promise<FinishedFightData> => {
   const response = await fetch(
@@ -77,7 +76,21 @@ const resolveBetsByFightId = async (
         betResultWin
       }
 
-      const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
+      const resolvedBetToSave = await FightBetModel.findOne({
+        id: bet.id
+      })
+
+      const user = await UserModel.findById(bet.user?._id)
+      const userAccepted = await UserModel.findById(bet.acceptedBy)
+
+      if (betResultWin && user) {
+        user.coinsAvailable += bet.expectedPayout
+        await user.save()
+      }
+      if (betResultWin === false && userAccepted) {
+        userAccepted.coinsAvailable += bet.amountBet
+        await userAccepted.save()
+      }
 
       if (resolvedBetToSave) {
         resolvedBetToSave.isResolved = resolvedBet.isResolved
@@ -91,144 +104,5 @@ const resolveBetsByFightId = async (
 
   return resolvedBets
 }
-
-// const resolveBetsByFightId = async (
-//   uniqueFightIds: number[],
-//   readyToResolveBets: FightBetDocument[]
-// ) => {
-//   const resolvedBets: FightBetDocument[] = []
-
-//   for (const FightId of uniqueFightIds) {
-//     const fightDataById = await getFightData(FightId)
-
-//     const betsToResolve = readyToResolveBets.filter(
-//       bet =>
-//         bet.FightId === FightId &&
-//         bet.isResolved === false &&
-//         bet.isAccepted === true
-//     )
-
-//     betsToResolve.forEach(async bet => {
-//       const projectedWinnerIndex = bet.projectedWinner
-//       // FightStats {}
-//       const projectedWinner = fightDataById.FightStats[projectedWinnerIndex]
-
-//       const winnerIsCorrect = projectedWinner.Winner === true
-
-//       if (bet.method === WinMethod.TBD) {
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: winnerIsCorrect
-//         }
-
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-
-//         resolvedBets.push(resolvedBet)
-//       }
-
-//       if (bet.method === WinMethod.SUBMISSION) {
-//         const methodIsCorrect = projectedWinner.Submissions > 0
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: winnerIsCorrect && methodIsCorrect
-//         }
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-//         resolvedBets.push(resolvedBet)
-//       }
-//       if (bet.method === WinMethod.KO_TKO) {
-//         const methodIsCorrect = projectedWinner.Knockdowns > 0
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: winnerIsCorrect && methodIsCorrect
-//         }
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-//         resolvedBets.push(resolvedBet)
-//       }
-//       if (bet.method === WinMethod.DECISION) {
-//         const methodIsCorrect = projectedWinner.DecisionWin === true
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: winnerIsCorrect && methodIsCorrect
-//         }
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-//         resolvedBets.push(resolvedBet)
-//       }
-//       if (bet.method === WinMethod.DQ) {
-//         // I assume that if winnerIsCorrect but there is no DecisionWin & nor Submissions nor Knockdowns then it is DQ
-//         const methodIsCorrect =
-//           projectedWinner.DecisionWin === false &&
-//           projectedWinner.Knockdowns === 0 &&
-//           projectedWinner.Submissions === 0
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: winnerIsCorrect && methodIsCorrect
-//         }
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-//         resolvedBets.push(resolvedBet)
-//       }
-//       if (bet.method === WinMethod.DRAW) {
-//         const fighterOneWin = fightDataById.FightStats[0].Winner
-//         const fighterTwoWin = fightDataById.FightStats[1].Winner
-//         const methodIsCorrect =
-//           fighterOneWin === false && fighterTwoWin === false
-//         const resolvedBet: FightBetDocument = {
-//           ...bet,
-//           isResolved: true,
-//           betResultWin: methodIsCorrect
-//         }
-//         const resolvedBetToSave = await FightBetModel.findById(resolvedBet.id)
-
-//         if (resolvedBetToSave) {
-//           resolvedBetToSave.isResolved = resolvedBet.isResolved
-//           resolvedBetToSave.betResultWin = resolvedBet.betResultWin
-//         }
-
-//         const updatedBet = await resolvedBetToSave?.save()
-//         resolvedBets.push(resolvedBet)
-//       }
-//     })
-//   }
-//   return resolvedBets
-// }
 
 export { getFightData, resolveBetsByFightId }
