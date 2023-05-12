@@ -125,5 +125,9 @@ const retireBetsByDateDue = async (readyToRetireBets: FightBetDocument[]) => {
     }
   }
 }
+// to test jest setup
+function sum (a: number, b: number) {
+  return a + b
+}
 
-export { getFightData, resolveBetsByFightId, retireBetsByDateDue }
+export { getFightData, resolveBetsByFightId, retireBetsByDateDue, sum }
