@@ -8,7 +8,7 @@ import {
   retireBetsByDateDue
 } from './functions/betHelpers'
 
-interface RequestWithUser extends Request {
+export interface RequestWithUser extends Request {
   user?: UserDocument
 }
 // @desc Fetch all bets

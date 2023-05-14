@@ -20,11 +20,8 @@ const connectTestDB = async (): Promise<Connection> => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`Error: ${error.message}`.bgRed.bold)
-      console.log('NODE_ENV', process.env.NODE_ENV)
-      console.log('uri', uri)
     } else {
       console.error(`Unknown error occurred: ${error}`.bgRed.bold)
-      console.log('NODE_ENV', process.env.NODE_ENV)
     }
     process.exit(1)
   }

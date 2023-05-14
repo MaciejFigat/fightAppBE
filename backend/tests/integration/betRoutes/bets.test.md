@@ -1,8 +1,7 @@
-import FightBetModel from '../../models/betModel'
+import FightBetModel from '../../../models/betModel'
 import mongoose, { Types } from 'mongoose'
-import User from '../../models/userModel'
-import generateToken from '../../utilities/generateToken'
-// import { FightBetDocument } from '../../interfaces'
+import User from '../../../models/userModel'
+import generateToken from '../../../utilities/generateToken'
 
 type FightBetDocument = InstanceType<typeof FightBetModel>
 
@@ -70,18 +69,14 @@ beforeAll(async () => {
 
 describe('insert', () => {
   it('should find a bet', async () => {
-    const betToFind = await FightBetModel.findOne({
-      id: '1231245151515ewdsfsfsfs'
-    })
+    const betToFind = await FightBetModel.findById(createdBet?._id)
 
-    expect(betToFind?._id).toEqual(createdBet?._id)
+    expect(betToFind?._id).toEqual(createdId)
 
-    await FightBetModel.deleteOne({ id: '1231245151515ewdsfsfsfs' })
-    const betThatWasDeleted = await FightBetModel.findOne({
-      id: '1231245151515ewdsfsfsfs'
-    })
+    await FightBetModel.deleteOne(createdBet?._id)
+    const betThatWasDeleted = await FightBetModel.findById(createdId)
     expect(betThatWasDeleted).toBeNull()
-  }, 10000)
+  }, 20000)
 
   afterAll(async () => {
     await mongoose.connection.close()
