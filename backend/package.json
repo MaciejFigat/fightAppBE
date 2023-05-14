@@ -1,6 +1,11 @@
 {
   "scripts": {
     "build": "tsc",
-    "buildRender": "npx tsc"
+    "buildRender": "npx tsc",
+    "test": "set NODE_ENV=test&& jest --watchAll --no-cache",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "ts-jest": "^29.1.0"
   }
 }

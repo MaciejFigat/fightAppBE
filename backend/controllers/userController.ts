@@ -256,8 +256,11 @@ const registerUser = asyncHandler(async (req, res) => {
             </button>
         
         </div>`
-
-  sendEmailTest(userEmail, subject, text, htmlBody)
+  if (process.env.NODE_ENV === 'test') {
+    return
+  } else {
+    sendEmailTest(userEmail, subject, text, htmlBody)
+  }
 })
 
 // @description get all users

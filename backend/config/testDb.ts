@@ -1,7 +1,12 @@
 import mongoose, { Connection } from 'mongoose'
+import { MongoMemoryServer } from 'mongodb-memory-server'
 
-const connectDB = async (): Promise<Connection> => {
-  const uri = process.env.MONGO_URI as string
+const connectTestDB = async (): Promise<Connection> => {
+  let uri: string | undefined
+
+  const mongod = await MongoMemoryServer.create()
+
+  uri = mongod.getUri()
 
   if (!uri) {
     throw new Error('Database connection string is not defined')
@@ -10,7 +15,7 @@ const connectDB = async (): Promise<Connection> => {
   try {
     const conn = await mongoose.connect(uri)
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline)
+    console.log(`TestDB Connected: ${conn.connection.host}`.cyan.underline)
     return conn.connection
   } catch (error) {
     if (error instanceof Error) {
@@ -25,4 +30,4 @@ const connectDB = async (): Promise<Connection> => {
   }
 }
 
-export default connectDB
+export default connectTestDB
