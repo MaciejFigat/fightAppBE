@@ -3,11 +3,10 @@ import app from '../../../src/server'
 import User from '../../../models/userModel'
 import mongoose, { Types } from 'mongoose'
 import generateToken from '../../../utilities/generateToken'
-import FightBetModel from '../../../models/betModel'
-import { FightBetDocument } from '../../../interfaces'
 
 let existingUserId: string
 let adminUserToken: string | undefined
+let userTestId: Types.ObjectId | null = null
 
 beforeAll(async () => {
   const user = new User({
@@ -60,6 +59,8 @@ describe('POST /api/users', () => {
 
     const response = await request(app).post('/api/users').send(newUser)
 
+    userTestId = response.body._id
+
     expect(response.status).toBe(201)
 
     const user = await User.findOne({ email: newUser.email })
@@ -89,9 +90,35 @@ describe('PUT /api/users/profile', () => {
   })
 })
 
+describe('DELETE /api/users/:id', () => {
+  it('delete user by id', async () => {
+    const response = await request(app)
+      .delete(`/api/users/${userTestId}`)
+      .set(
+        'Authorization',
+        adminUserToken ? adminUserToken : 'Bearer ' + generateToken('')
+      )
+
+    expect(response.status).toBe(200)
+    expect(response.body.message).toBe('User removed')
+  })
+})
+describe('DELETE /api/users/:id', () => {
+  it('fail to delete non existing user by id', async () => {
+    const response = await request(app)
+      .delete(`/api/users/${userTestId}`)
+      .set(
+        'Authorization',
+        adminUserToken ? adminUserToken : 'Bearer ' + generateToken('')
+      )
+    console.log(response.body.message)
+    expect(response.status).toBe(404)
+    expect(response.body.message).toBe('User not found')
+  })
+})
 let betId: Types.ObjectId | null = null
 
-describe('PUT /api/bets/', () => {
+describe('POST /api/bets/', () => {
   it('user adds bet succesfully', async () => {
     const BobTheToaster = {
       Active: true,
@@ -118,22 +145,6 @@ describe('PUT /api/bets/', () => {
       Winner: false
     }
 
-    // const newBet = new FightBetModel({
-    //   user: '6447e0a06d41697e759fc34b',
-    //   id: '1231245151515ewdsfsfsfs',
-    //   name: 'BobTheToaster',
-    //   fightName: 'BobTheToaster vs. BobTheTester',
-    //   method: 'KO/TKO',
-    //   FightId: 1234,
-    //   EventId: 123545,
-    //   activated: true,
-    //   dateTime: '2025-05-01T23:00:00.000Z',
-    //   moneyline: 100,
-    //   Fighters: [BobTheToaster, BobTheTester],
-    //   projectedWinner: 0,
-    //   amountBet: 1,
-    //   expectedPayout: 1
-    // })
     const newBet = {
       user: '6447e0a06d41697e759fc34b',
       id: '1231245151515ewdsfsfsfs',
@@ -151,7 +162,6 @@ describe('PUT /api/bets/', () => {
       expectedPayout: 1
     }
 
-    // betId = newBet._id
     const response = await request(app)
       .post('/api/bets/')
       .set(
@@ -159,13 +169,37 @@ describe('PUT /api/bets/', () => {
         adminUserToken ? adminUserToken : 'Bearer ' + generateToken('')
       )
       .send(newBet)
-    console.log('response.body.name', response.body.name)
-    // const betFound = await FightBetModel.findById(betId)
-    // console.log('betFound', betFound)
+
+    betId = response.body._id
     expect(response.status).toBe(201)
     expect(response.body.name).toBe(newBet.name)
-    // expect(response.body.name).toBe(betFound?.name)
     expect(response.body.FightId).toBe(newBet.FightId)
-    // expect(response.body.FightId).toBe(betFound?.FightId)
+  })
+})
+describe('GET /api/bets/mybets', () => {
+  it('user finds his bet', async () => {
+    const response = await request(app)
+      .get('/api/bets/mybets')
+      .set(
+        'Authorization',
+        adminUserToken ? adminUserToken : 'Bearer ' + generateToken('')
+      )
+
+    expect(response.status).toBe(200)
+    expect(response.body[0]._id).toBe(betId)
+  })
+})
+describe('DELETE /api/bets/:id', () => {
+  it('delete bet by id', async () => {
+    const response = await request(app)
+      .delete(`/api/bets/${betId}`)
+      .set(
+        'Authorization',
+        adminUserToken ? adminUserToken : 'Bearer ' + generateToken('')
+      )
+
+    expect(response.status).toBe(200)
+    expect(response.body.id).toBe(betId)
+    expect(response.body.message).toBe('Bet removed')
   })
 })

@@ -147,7 +147,7 @@ const deleteBet = asyncHandler(
 )
 
 // @description get logged in user bets that he created
-// @route GET /api/bet/mybet
+// @route GET /api/bets/mybet
 // @access private
 //? currently not used
 
@@ -160,7 +160,7 @@ const getMyBets = asyncHandler(async (req: RequestWithUser, res: Response) => {
   }
 })
 // @description get logged in user bets that he created
-// @route GET /api/bet/mybet
+// @route GET /api/bets/mybet
 // @access private
 
 const getAndResolveMyBets = asyncHandler(
@@ -201,7 +201,7 @@ const getAndResolveMyBets = asyncHandler(
 )
 
 // @description get logged in user bets that he accepted
-// @route GET /api/bet/myacceptedbet
+// @route GET /api/bets/myacceptedbet
 // @access private
 
 const getMyAcceptedBets = asyncHandler(
@@ -215,7 +215,7 @@ const getMyAcceptedBets = asyncHandler(
   }
 )
 // @description get logged in user bets that he accepted
-// @route GET /api/bet/myacceptedbet
+// @route GET /api/bets/myacceptedbet
 // @access private
 
 const getAndResolveMyAcceptedBets = asyncHandler(
